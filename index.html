@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#183e35" />
+    <title>Ganadería Familiar | Control del hato</title>
+    <meta name="description" content="Control privado de animales, pesajes, gastos e indicadores para una finca familiar." />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23173f35'/%3E%3Cpath d='M17 26 9 18l5-5 10 9m26 4 8-8-5-5-10 9' stroke='%23c5da92' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cpath d='M17 24c0-7 30-7 30 0v18c0 13-30 13-30 0Z' fill='%23f7f6ef'/%3E%3Ccircle cx='25' cy='32' r='3' fill='%23173f35'/%3E%3Ccircle cx='39' cy='32' r='3' fill='%23173f35'/%3E%3Cpath d='M25 41q7 5 14 0' stroke='%23173f35' stroke-width='3' stroke-linecap='round' fill='none'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">GF</span>
+          <span><strong>Ganadería</strong><small>Control familiar</small></span>
+        </div>
+
+        <nav aria-label="Navegación principal">
+          <button class="nav-item active" type="button" data-section="dashboard">
+            <span aria-hidden="true">▦</span> Tablero
+          </button>
+          <button class="nav-item" type="button" data-section="animales">
+            <span aria-hidden="true">◉</span> Animales
+          </button>
+          <button class="nav-item" type="button" data-section="pesajes">
+            <span aria-hidden="true">⌁</span> Pesajes
+          </button>
+          <button class="nav-item" type="button" data-section="gastos">
+            <span aria-hidden="true">$</span> Gastos
+          </button>
+        </nav>
+
+        <div class="sidebar-note">
+          <span class="online-dot"></span>
+          Prototipo local<br />Datos guardados en este navegador
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="section-label">VISIÓN GENERAL</p>
+            <h1 id="section-title">Panorama del hato</h1>
+          </div>
+          <div class="topbar-actions">
+            <button class="button button-quiet" id="export-button" type="button">Exportar Excel</button>
+            <button class="button button-primary" id="new-animal-button" type="button">+ Registrar animal</button>
+          </div>
+        </header>
+
+        <section id="dashboard-section" class="section active-section">
+          <div class="intro-row">
+            <p>Filtra el inventario para responder preguntas clave de la finca.</p>
+            <button class="text-button" id="clear-filters" type="button">Limpiar filtros</button>
+          </div>
+
+          <form class="filter-panel" id="filters-form">
+            <label>
+              Categoría
+              <select id="filter-category" name="category">
+                <option value="">Todas las categorías</option>
+                <option value="Vaca">Vacas</option>
+                <option value="Toro">Toros</option>
+                <option value="Novillo">Novillos</option>
+              </select>
+            </label>
+            <label>
+              Sexo
+              <select id="filter-sex" name="sex">
+                <option value="">Hembras y machos</option>
+                <option value="Hembra">Hembras</option>
+                <option value="Macho">Machos</option>
+              </select>
+            </label>
+            <label>
+              Propósito
+              <select id="filter-purpose" name="purpose">
+                <option value="">Todos los propósitos</option>
+                <option value="Leche">Producción de leche</option>
+                <option value="Engorde">Engorde</option>
+                <option value="Reproducción">Reproducción</option>
+              </select>
+            </label>
+            <label>
+              Edad mínima
+              <select id="filter-min-age" name="minAge">
+                <option value="">Cualquier edad</option>
+                <option value="1">1 año</option>
+                <option value="2">2 años</option>
+                <option value="3">3 años</option>
+                <option value="5">5 años</option>
+              </select>
+            </label>
+            <label>
+              Estado
+              <select id="filter-status" name="status">
+                <option value="Activo">Activos</option>
+                <option value="">Todos</option>
+                <option value="Vendido">Vendidos</option>
+                <option value="Fallecido">Fallecidos</option>
+              </select>
+            </label>
+          </form>
+
+          <div class="insight-callout" id="insight-callout"></div>
+
+          <div class="metric-grid">
+            <article class="metric-card">
+              <p>Animales encontrados</p>
+              <strong id="metric-total">0</strong>
+              <span id="metric-total-detail">Según los filtros actuales</span>
+            </article>
+            <article class="metric-card metric-milk">
+              <p>Productores de leche</p>
+              <strong id="metric-milk">0</strong>
+              <span id="metric-milk-detail">Animales activos</span>
+            </article>
+            <article class="metric-card metric-age">
+              <p>Mayores de 2 años</p>
+              <strong id="metric-older">0</strong>
+              <span id="metric-older-detail">Dentro del resultado</span>
+            </article>
+            <article class="metric-card metric-weight">
+              <p>Peso promedio actual</p>
+              <strong id="metric-weight">—</strong>
+              <span id="metric-weight-detail">Último pesaje registrado</span>
+            </article>
+          </div>
+
+          <div class="chart-grid">
+            <article class="card chart-card">
+              <div class="card-heading">
+                <div>
+                  <p class="eyebrow">INVENTARIO</p>
+                  <h2>Animales por categoría</h2>
+                </div>
+                <span class="legend"><i></i> Animales</span>
+              </div>
+              <div class="bar-chart" id="category-chart" aria-label="Gráfico de animales por categoría"></div>
+            </article>
+            <article class="card chart-card">
+              <div class="card-heading">
+                <div>
+                  <p class="eyebrow">COMPOSICIÓN</p>
+                  <h2>Propósito productivo</h2>
+                </div>
+              </div>
+              <div class="purpose-chart-wrap">
+                <div class="donut" id="purpose-donut"><span id="donut-total">0</span><small>animales</small></div>
+                <div class="donut-legend" id="purpose-legend"></div>
+              </div>
+            </article>
+          </div>
+
+          <article class="card table-card">
+            <div class="card-heading table-heading">
+              <div>
+                <p class="eyebrow">RESULTADOS</p>
+                <h2>Animales que cumplen los filtros</h2>
+              </div>
+              <span id="result-count" class="result-count">0 registros</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Animal</th>
+                    <th>Categoría</th>
+                    <th>Sexo</th>
+                    <th>Propósito</th>
+                    <th>Edad</th>
+                    <th>Último peso</th>
+                    <th>Estado</th>
+                    <th aria-label="Acciones"></th>
+                  </tr>
+                </thead>
+                <tbody id="animals-table"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="animales-section" class="section">
+          <div class="section-toolbar">
+            <p>Inventario completo de la finca. Cada animal conserva su historial de pesajes y gastos.</p>
+            <button class="button button-primary" id="animals-new-button" type="button">+ Registrar animal</button>
+          </div>
+          <article class="card table-card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Arete / ID</th><th>Nombre</th><th>Categoría</th><th>Sexo</th><th>Propósito</th><th>Fecha de nacimiento</th><th>Estado</th><th></th></tr></thead>
+                <tbody id="all-animals-table"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="pesajes-section" class="section">
+          <div class="section-toolbar">
+            <p>El peso se registra como historial: nunca se reemplazan datos anteriores.</p>
+            <button class="button button-primary" id="new-weight-button" type="button">+ Registrar pesaje</button>
+          </div>
+          <article class="card table-card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Fecha</th><th>Animal</th><th>Peso</th><th>Observación</th></tr></thead>
+                <tbody id="weights-table"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="gastos-section" class="section">
+          <div class="section-toolbar">
+            <p>Registra costos de vitaminas, medicamentos, alimentación y cuidado animal.</p>
+            <button class="button button-primary" id="new-expense-button" type="button">+ Registrar gasto</button>
+          </div>
+          <article class="card table-card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Animal</th><th>Valor</th></tr></thead>
+                <tbody id="expenses-table"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="modal" id="animal-modal">
+      <form method="dialog" id="animal-form">
+        <input type="hidden" name="animalId" />
+        <div class="modal-heading"><div><p class="eyebrow" id="animal-modal-eyebrow">NUEVO REGISTRO</p><h2 id="animal-modal-title">Registrar animal</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Cerrar">×</button></div>
+        <div class="form-grid">
+          <label>Arete / ID*<input name="earTag" required placeholder="Ej. VL-025" /></label>
+          <label>Nombre o referencia<input name="name" placeholder="Ej. Luna" /></label>
+          <label>Categoría*<select name="category" required><option value="">Selecciona</option><option>Vaca</option><option>Toro</option><option>Novillo</option></select></label>
+          <label>Sexo*<select name="sex" required><option value="">Selecciona</option><option value="Hembra">Hembra</option><option value="Macho">Macho</option></select></label>
+          <label>Propósito*<select name="purpose" required><option value="">Selecciona</option><option>Leche</option><option>Engorde</option><option>Reproducción</option></select></label>
+          <label>Fecha de nacimiento*<input name="birthDate" type="date" required /></label>
+          <label>Fecha de ingreso*<input name="entryDate" type="date" required /></label>
+          <label>Peso de entrada (kg)<input name="entryWeight" type="number" min="0" step="0.1" placeholder="Ej. 420" /></label>
+        </div>
+        <label class="full-label">Observación inicial<textarea name="notes" rows="3" placeholder="Raza, condición de ingreso u otra nota útil"></textarea></label>
+        <div class="modal-actions"><button class="button button-quiet" type="button" data-close-modal>Cancelar</button><button class="button button-primary" type="submit" id="save-animal-button">Guardar animal</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="modal modal-danger" id="delete-animal-modal" aria-labelledby="delete-animal-title">
+      <form method="dialog" id="delete-animal-form">
+        <div class="modal-heading"><div><p class="eyebrow">ACCIÓN IRREVERSIBLE</p><h2 id="delete-animal-title">¿Eliminar este animal?</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Cerrar">×</button></div>
+        <p class="delete-message" id="delete-animal-message"></p>
+        <div class="delete-warning">Esta acción no se puede deshacer. Para bajas, ventas o fallecimientos es preferible conservar el animal y cambiar su estado.</div>
+        <div class="modal-actions"><button class="button button-quiet" type="button" data-close-modal>Cancelar</button><button class="button button-danger" type="submit" value="confirm">Sí, eliminar definitivamente</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="weight-modal">
+      <form method="dialog" id="weight-form">
+        <div class="modal-heading"><div><p class="eyebrow">HISTORIAL DE PESO</p><h2>Registrar pesaje</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Cerrar">×</button></div>
+        <div class="form-grid two-columns">
+          <label>Animal*<select name="animalId" id="weight-animal" required></select></label>
+          <label>Fecha*<input name="date" type="date" required /></label>
+          <label>Peso (kg)*<input name="weight" type="number" min="1" step="0.1" required /></label>
+          <label>Observación<input name="notes" placeholder="Ej. Pesaje de control" /></label>
+        </div>
+        <div class="modal-actions"><button class="button button-quiet" type="button" data-close-modal>Cancelar</button><button class="button button-primary" type="submit" id="save-weight-button">Guardar pesaje</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="expense-modal">
+      <form method="dialog" id="expense-form">
+        <div class="modal-heading"><div><p class="eyebrow">CONTROL DE COSTOS</p><h2>Registrar gasto</h2></div><button class="icon-button" type="button" data-close-modal aria-label="Cerrar">×</button></div>
+        <div class="form-grid two-columns">
+          <label>Fecha*<input name="date" type="date" required /></label>
+          <label>Tipo de gasto*<select name="type" required><option value="">Selecciona</option><option>Vitaminas</option><option>Medicamentos</option><option>Vacunación</option><option>Alimentación</option><option>Veterinario</option><option>Otro</option></select></label>
+          <label>Concepto*<input name="concept" required placeholder="Ej. Complejo vitamínico" /></label>
+          <label>Valor (COP)*<input name="amount" type="number" min="1" step="1" required /></label>
+          <label>Animal asociado<select name="animalId" id="expense-animal"></select></label>
+          <label>Proveedor<input name="supplier" placeholder="Opcional" /></label>
+        </div>
+        <div class="modal-actions"><button class="button button-quiet" type="button" data-close-modal>Cancelar</button><button class="button button-primary" type="submit" id="save-expense-button">Guardar gasto</button></div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status"></div>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
